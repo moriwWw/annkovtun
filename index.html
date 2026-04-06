@@ -84,6 +84,12 @@ body {
   cursor: none;
 }
 
+/* Hide cursor dot on touch devices */
+@media (hover: none) {
+  .cursor { display: none !important; }
+  body { cursor: auto; }
+}
+
 /* ── CURSOR ── */
 .cursor {
   width:6px; height:6px;
@@ -525,39 +531,45 @@ nav.scrolled {
 #contact { border-top: 1px solid var(--border); }
 
 .contact-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
 }
 
-.contact-left h2 {
+.contact-label-text { display: inline; }
+
+.contact-label {
   font-family: 'Montserrat', sans-serif;
-  font-size: clamp(22px, 3vw, 36px); /* CONTACT HEADING SIZE */
-  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
   color: var(--white);
-  margin-bottom: 28px;
-  line-height: 1.2;
-  font-style: normal;
+  font-weight: 700;
 }
 
 .contact-email {
   font-family: 'Montserrat', sans-serif;
-  font-size: 16px; /* EMAIL SIZE */
-  color: var(--silver);
+  font-size: 14px;
+  color: var(--white);
   text-decoration: none;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 4px;
-  transition: color .3s, border-color .3s;
-  font-weight: 700; /* bold email */
-  word-break: break-all;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  transition: color .3s;
 }
-.contact-email:hover { color:var(--white); border-color:var(--silver); }
+.contact-email:hover { color: var(--silver); }
 
-/* Right side of contact — empty now, kept for layout symmetry */
-.contact-right { padding-top: 4px; }
+.contact-tagline {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--dim);
+  font-weight: 400;
+  margin-top: 4px;
+}
 
 /* ── FOOTER ── */
 footer {
@@ -584,10 +596,12 @@ footer {
 @keyframes fadeIn { to { opacity:1; } }
 
 .reveal {
-  opacity:0; transform:translateY(18px);
+  opacity:1; transform:translateY(0);
   transition: opacity .7s ease, transform .7s ease;
 }
-.reveal.visible { opacity:1; transform:translateY(0); }
+/* Safety: if JS fails, still show content after delay */
+@keyframes revealFallback { to { opacity:1; transform:none; } }
+.reveal.visible { opacity:1; transform:translateY(0); } /* already visible by default */
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {
@@ -622,9 +636,10 @@ footer {
   .hero-photo-bg {
     background:
       linear-gradient(to bottom,
-        rgba(0,0,0,0.55) 0%,
-        rgba(0,0,0,0.1) 40%,
-        rgba(0,0,0,0.7) 100%),
+        rgba(0,0,0,0.2) 0%,
+        rgba(0,0,0,0.0) 35%,
+        rgba(0,0,0,0.5) 75%,
+        rgba(0,0,0,0.85) 100%),
       url('main_photo.jpg') center top / cover no-repeat !important;
   }
 
@@ -632,35 +647,33 @@ footer {
     position: absolute;
     inset: 0;
     z-index: 2;
-    padding: 0 32px;
-    justify-content: flex-end; /* push to bottom of screen */
-    padding-bottom: 60px;
+    padding: 0 24px 48px;
+    justify-content: flex-end;
     align-items: center;
     background: transparent;
   }
 
-  /* Mobile hero logo: use text fallback if PNG fails */
   .hero-logo {
-    width: 200px;
-    max-width: 65vw;
-    opacity: 0;
+    width: 85vw;
+    max-width: 380px;
+    opacity: 1;
     animation: fadeDown 1.4s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     display: block;
-    /* If logo still shows as ?, the fallback below kicks in */
   }
 
-  /* VOICE · WORDS · UNIVERSE — vertical stack on mobile */
+  /* VOICE · WORDS · UNIVERSE — one horizontal line on mobile */
   .hero-sub {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    gap: 0;
     font-size: 9px;
-    letter-spacing: 0.5em;
-    margin-top: 16px;
-    line-height: 2;
+    letter-spacing: 0.3em;
+    margin-top: 14px;
+    flex-wrap: nowrap;
   }
 
   .section-wrap { padding:80px 24px; }
@@ -677,17 +690,19 @@ footer {
   .explore-links { flex-wrap: wrap; }
   .explore-link { flex: 1 1 calc(50% - 8px); min-width: 120px; }
 
-  .contact-grid { grid-template-columns:1fr; gap:32px; }
-  .contact-right { display: none; }
+  .contact-grid { gap: 6px; align-items: center; text-align: center; }
+  .contact-label-text { display: inline; }
+
+.contact-label { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .contact-email { font-size: 12px; word-break: break-all; display: block; }
 
   footer {
     padding: 24px;
     letter-spacing: 0.18em;
-    /* Mobile footer: 2 lines justified */
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    text-align: left;
+    align-items: center;
+    text-align: center;
     gap: 2px;
   }
 
@@ -741,10 +756,10 @@ footer {
     <div class="about-grid">
       <div class="about-text reveal">
         <p>
-          <strong>Ann Kovtun</strong> is an alt-pop artist, producer, sonic world-builder, and songwriter. Her music is a <strong><em>Library of States</em></strong> — a universe where each song acts as a "book" exploring a specific emotional state through fictional characters. Her work sits at the intersection of immersive storytelling, vocal performance, psychology, and minimalist electronic production.
+          <strong>Ann Kovtun</strong> is an alt-pop artist, producer, sonic world-builder, and songwriter. Her music is a <span style="color:var(--white);">Library of States</span> — a universe where each song acts as a "book" exploring a specific emotional state through fictional characters. Her work sits at the intersection of immersive storytelling, vocal performance, psychology, and minimalist electronic production.
         </p>
         <p>
-          Following the breakout of the track <strong><em>Паніка (Panic)</em></strong>, her English-language album <strong>EMERALD DEW</strong>, produced by Ann in Norway, received a Main Banner on Apple Music Ukraine and broad editorial support. Since then, she has been expanding the Library through a series of singles that introduce listeners to characters from the darkest depths of the psyche.
+          Following the breakout of the track <span style="color:var(--white);">Паніка (Panic)</span>, her English-language album <span style="color:var(--white);">EMERALD DEW</span>, produced by Ann in Norway, received a Main Banner on Apple Music Ukraine and broad editorial support. Since then, she has been expanding the Library through a series of singles that introduce listeners to characters from the darkest depths of the psyche.
         </p>
         <p>
           Beyond her solo releases, Ann's artistry extends to international theatre, film, and video games, including featured vocal work on the Annie Award-nominated Teslagrad 2.
@@ -753,9 +768,9 @@ footer {
           By blending textural electronics with elements of voice acting and fantasy, Ann Kovtun transforms Ukrainian authenticity into global introspective themes.
         </p>
         <p>
-          Her music serves as a soundtrack for moments experienced by fictional characters and real people alike — creating a safe space to <strong>Feel the Unseen.</strong>
+          Her music serves as a soundtrack for moments experienced by fictional characters and real people alike — creating a safe space to <span style="color:var(--white);">Feel the Unseen.</span>
         </p>
-      </div>
+      </div>      </div>
     </div>
   </div>
 </section>
@@ -964,19 +979,12 @@ footer {
   </div>
 </section>
 
-<!-- CONTACT — email only, no socials (moved to Explore More) -->
+<!-- CONTACT -->
 <section id="contact">
-  <div class="section-wrap">
-    <div class="contact-grid">
-
-      <div class="contact-left reveal">
-        <h2>Feel the Unseen</h2>
-        <a href="mailto:helloannkovtun@gmail.com" class="contact-email">helloannkovtun@gmail.com</a>
-      </div>
-
-      <!-- Right side intentionally empty for symmetry -->
-      <div class="contact-right"></div>
-
+  <div class="section-wrap" style="padding-top:48px;padding-bottom:48px;">
+    <div class="contact-grid reveal">
+      <div class="contact-label">Contact: <a href="/cdn-cgi/l/email-protection#2a424f4646454b444441455c5e5f446a4d474b434604494547" class="contact-email"><span class="__cf_email__" data-cfemail="7b131e1717141a151510140d0f0e153b1c161a121755181416">[email&#160;protected]</span></a></div>
+      <div class="contact-tagline">Feel the Unseen</div>
     </div>
   </div>
 </section>
@@ -1010,6 +1018,9 @@ footer {
   });
 
   // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  // Safety fallback: make all visible after 1.5s in case observer fails
+  setTimeout(() => revealEls.forEach(el => el.classList.add('visible')), 1500);
   const observer = new IntersectionObserver(entries => {
     entries.forEach((entry, i) => {
       if (entry.isIntersecting) {
@@ -1017,12 +1028,12 @@ footer {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.08 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
+  }, { threshold: 0.04 });
+  revealEls.forEach(el => observer.observe(el));
   // Mobile: tap card to toggle overlay
   document.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', () => {      const overlay = card.querySelector('.card-overlay');
+    card.addEventListener('click', () => {
+      const overlay = card.querySelector('.card-overlay');
       const isOpen = overlay.style.opacity === '1';
       document.querySelectorAll('.card .card-overlay').forEach(o => o.style.opacity = '0');
       if (!isOpen) overlay.style.opacity = '1';
